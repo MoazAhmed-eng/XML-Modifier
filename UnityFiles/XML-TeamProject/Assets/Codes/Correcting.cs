@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Correcting : MonoBehaviour
 {
+
+
+    public void Correct()
+    {
+    }
+
+
+
+
     // Update is called once per frame
     void Update()
     {

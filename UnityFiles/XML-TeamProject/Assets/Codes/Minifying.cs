@@ -1,54 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.IO;
 
 public class Minifying : MonoBehaviour
 {
     public void Minify()
     {
         string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
-        str=str.Trim();
-        str=str.Replace("\n", "");
-        str = str.Replace("\r", "");
-
-        for (int index = 0; index < str.Length; index++)
+        string Minified = "";
+        for (int i = 0; i < str.Length; i++)
         {
-            bool flag = true;
-
-            if (str[index]=='>')
+            if (str[i] == ' ')
             {
-                int startingIndex = index+1;
-                int endingIndex = startingIndex;
-                index++;
-                while (index < str.Length)
+                if (str[i - 1] == '>' || str[i + 1] == '<' || str[i - 1] == ' ' || str[i + 1] == ' ')
                 {
-                    if (str[index] != ' ')
-                    {
-                        flag = false;
-                        break;
-                    }
-
-                    if (str[index] != '<')
-                    {
-                        endingIndex = index;
-                        index++;
-                    }
-
-                    else
-                    {
-                        break;
-                    }
+                    continue;
                 }
-
-
-                if( !flag & endingIndex - startingIndex>0)
-                {
-                    str = str.Remove(startingIndex, endingIndex - startingIndex+1);
-                    index -= endingIndex - startingIndex;
-                }
-
+                else { Minified += str[i]; }
+            }
+            else
+            {
+                Minified += str[i];
             }
         }
-        GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text = str;
+        Minified = Minified.Trim();
+        Minified = Minified.Replace("\n", "");
+        Minified = Minified.Replace("\r", "");
+
+        using (StreamWriter writer = new StreamWriter(@"Assets/MINIFIED.txt"))
+        {
+            writer.Write(Minified);
+        }
+        GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text=Minified;
+
     }
 }

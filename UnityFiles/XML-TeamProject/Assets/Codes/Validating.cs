@@ -6,6 +6,7 @@ using UnityEngine;
 {
     public void Validate()
     {
+        PlayerPrefs.SetInt("didCheck", 1);
         int status = 1;
         Stack stack = new Stack();
         string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;

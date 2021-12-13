@@ -7,6 +7,6 @@ public class AddPlaceHolder : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.GetComponent<UnityEngine.UI.Text>().text = System.IO.File.ReadAllText(@"Assets/xml.txt");
+        gameObject.GetComponent<UnityEngine.UI.Text>().text = System.IO.File.ReadAllText(@"Assets/placeHolder.txt");
     }
 }

@@ -1,18 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+
 
 public class getXML : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void OpenExplorer()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+       string path=EditorUtility.OpenFilePanel("Select a XML file", "", ".xml");
         
+        if (path.Length>0)
+        {
+            if((path[path.Length - 1] == 'l' & path[path.Length - 2] == 'm' & path[path.Length - 3] == 'x'))
+            {
+                PlayerPrefs.SetInt("didChoose", 1);
+                PlayerPrefs.SetString("path", path);
+            }
+        }
+        else
+        {
+            // didn't choose a file 
+            PlayerPrefs.SetString("path", "");
+        }
     }
 }
