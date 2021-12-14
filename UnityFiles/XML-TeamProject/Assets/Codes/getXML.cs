@@ -8,7 +8,7 @@ public class getXML : MonoBehaviour
 {
     public void OpenExplorer()
     {
-       string path=EditorUtility.OpenFilePanel("Select a XML file", "", ".xml");
+       string path=EditorUtility.OpenFilePanel("Select a XML file", "", "xml");
         
         if (path.Length>0)
         {

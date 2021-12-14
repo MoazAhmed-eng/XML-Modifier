@@ -6,7 +6,7 @@ using System.Text;
 
 
 
-class TreeNode
+public class TreeNode
 {
     string name;
     string value;
@@ -14,7 +14,7 @@ class TreeNode
     List<string> attributes;
     List<TreeNode> children;
 
-    TreeNode(string name , string value)
+    public TreeNode(string name , string value)
     {
         this.depth = 0;
         this.name = name;
@@ -23,7 +23,7 @@ class TreeNode
         this.children = null;
     }
 
-    TreeNode()
+    public TreeNode()
     {
         this.depth = 0;
         this.name = null;
@@ -32,43 +32,55 @@ class TreeNode
         this.children = null;
     }
 
-    List<TreeNode> getChildren()
+    public List<TreeNode> getChildren()
     {
         return children;
     }
 
-    string getName()
+    public int getDepth()
+    {
+        return depth;
+    }
+    public string getName()
     {
         return name;
     }
 
-    string getValue()
+    public void addChildren(TreeNode node)
+    {
+        if(this.children==null)
+        {
+            this.children = new List<TreeNode>();
+        }
+        this.children.Add(node);
+    }
+     public string getValue()
     {
         return value;
     }
 
-    void setDepth( int depth)
+     public void setDepth( int depth)
     {
         this.depth = depth;
     }
 
-    void setName(string name)
+     public void setName(string name)
     {
         this.name = name;
     }
 
-    void setValue(string value)
+    public void setValue(string value)
     {
         this.value = value;
     }
 
-    void setAttributes(List<string> attributes)
+    public void setAttributes(List<string> attributes)
     {
         this.attributes = attributes;
     }
 }
 
-class Tree
+public class Tree
 {
     TreeNode root;
 
@@ -82,7 +94,7 @@ class Tree
         this.root = root;
     }
 
-    TreeNode getRoot()
+    public TreeNode getRoot()
     {
         return root;
     }
@@ -91,17 +103,21 @@ class Tree
 
 public class Jsonify : MonoBehaviour
 {
-
-    public void ScanThroughXML()
-        
+    public List<string> ScanThroughXML() 
+        // works with minified text
     {
+        GameObject.FindGameObjectWithTag("minify").GetComponent<Minifying>().Minify(); // call the minfy function
+
         string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
 
         List<string> tockenized = new List<string>();
 
         for (int i = 0; i < str.Length; i++)
+
         {
-            if (str[i] == '<' && (str[i + 1] == '!' || str[i + 1] == '?' || str[i + 1] == '/')) continue;
+            if (str[i] == '<' && str[i + 1] == '/') tockenized.Add("/");
+
+            if (str[i] == '<' && (str[i + 1] == '!' || str[i + 1] == '?')) continue;
 
             if (str[i] == '<' && str[i + 1] != '/')
             {
@@ -125,12 +141,14 @@ public class Jsonify : MonoBehaviour
                     {
                         continue;
                     }
-                    attTemp.Append('*');
-                    attTemp.Append(element);
-                    tockenized.Add(attTemp.ToString());
+                    attTemp.Append('*'); // add the * to the temp
+                    attTemp.Append(element.Split('=')[0]); // add the name of the attribute
+                    tockenized.Add(attTemp.ToString()); // add it to the list
+                    tockenized.Add(element.Split('=')[1]); // add its value 
+                    tockenized.Add("/"); // add '/' because we deal with it as a tag
                     attTemp.Clear();
                 }
-            }
+            } // Append tag names with _ in the start and attributes with *
 
             else if (str[i] == '>')
             {
@@ -154,13 +172,88 @@ public class Jsonify : MonoBehaviour
                 {
                     tockenized.Add(t);
                 }
-            }
+            } // Append the values (data)
 
         }
+        return tockenized;
+    }
 
-        foreach (string st in tockenized)
+    // just for debugging
+    public void  recursivePrint(TreeNode node)
+    {
+        print($"{{\"{node.getName()}\" : ");
+
+
+        if (node.getChildren() == null)
         {
-            Debug.Log(st);
+            print($"\"{node.getValue()}\"}}");
+            return;
+        }
+
+
+        foreach (TreeNode t in node.getChildren().ToArray())
+        {
+            recursivePrint(t);
+        }
+
+        print("}");
+
+
+    } 
+
+
+    public void  ShowTree()
+    {
+        List<string> arr = ScanThroughXML();
+        TreeNode node = new TreeNode();
+        int i = 0;
+        fillTree(node, arr, ref i);
+        recursivePrint(node);
+    }
+
+    /*
+     *  This function will recursively fill the tree , as follows : 
+     *  the first element is certainly an open tag so save the name and the attributes to the tree
+     *  
+     *  The two base cases : 
+     *  1- if it's a '/' then it's a closing tag so return
+     *  2- if it's a data then save it to the current node and return (Here we are making the assumption that each tag either
+     *  have a data or children)
+     *  
+     *  
+     *  the Recursive case :
+     *  if the following element is starting with '_'  or '*' then it's an opening tag or attribure (which is treated as an openingTag)  so create a node
+     *  and append it as a child to the current node and then call the function recursively passing to it the 
+     *  last created Node.
+     *  
+     * 
+     * 
+     */
+    public void fillTree(TreeNode node , List<string> arr , ref int i) 
+    {
+        for(; i<arr.Count;i++)
+        {
+            if (i == 0) // special case to the save the first element
+            {
+                node.setName(arr[0].Substring(1));
+                continue;
+            }
+            if (arr[i][0] == ('/')) return; // Base case number one
+            if (arr[i][0] != '_' && arr[i][0] != '*')
+            {
+                node.setValue(arr[i]);
+                i++;
+                return;
+            }
+            if(arr[i][0]=='*' || arr[i][0] == '_') // then it must be an opening tag or an attribute
+            {
+                TreeNode child = new TreeNode();
+                child.setName(arr[i].Substring(1));
+                child.setDepth(node.getDepth() + 1);
+                node.addChildren(child);
+                i++;
+                fillTree(child,arr,ref i);
+            }
         }
     }
 }
