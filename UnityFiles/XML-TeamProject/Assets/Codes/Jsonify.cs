@@ -12,16 +12,14 @@ public class TreeNode
     string name;
     string value;
     int depth;
-    List<string> attributes;
     List<TreeNode> children;
-    List<List<TreeNode>> childrenCollected;
+    List<List<TreeNode>> childrenCollected; // saves the  repeated children collected together in one list 
 
     public TreeNode(string name , string value)
     {
         this.depth = 0;
         this.name = name;
         this.value = value;
-        this.attributes = null;
         this.children = null;
     }
 
@@ -30,7 +28,6 @@ public class TreeNode
         this.depth = 0;
         this.name = null;
         this.value = null;
-        this.attributes = null;
         this.children = null;
         this.childrenCollected = null;
     }
@@ -87,10 +84,6 @@ public class TreeNode
         this.childrenCollected = list;
     }
 
-    public void setAttributes(List<string> attributes)
-    {
-        this.attributes = attributes;
-    }
 }
 
 public class Tree
@@ -159,7 +152,7 @@ public class Jsonify : MonoBehaviour
                     {
                         continue;
                     }
-                    attTemp.Append('*'); // add the * to the temp
+                    attTemp.Append("**"); // add the * to the temp
                     attTemp.Append(element.Split('=')[0]); // add the name of the attribute
                     tockenized.Add(attTemp.ToString()); // add it to the list
                     tockenized.Add(element.Split('=')[1].Replace("\"","")); // add its value 
@@ -199,90 +192,130 @@ public class Jsonify : MonoBehaviour
 
 
 
-    // the one that prints the json string and saves it
-    public void  RecursivePrint(TreeNode node)
+    /* the function loops on the children of each node and save them into lists ,
+     * where similar tags go into the same list and different tags are in lists of 
+     * length one
+     */
+    public void  saveChildrenCollected(TreeNode node)
     {
 
-        if (node.getChildren() == null) return;
+        if (node.getChildren() == null) return; // baseCase when there's no childs for the tag
 
-        List<List<TreeNode>> lists = new List<List<TreeNode>>();
+        List<List<TreeNode>> lists = new List<List<TreeNode>>(); // the list of lists that holds the children lists
 
-        foreach(TreeNode child in node.getChildren())
+        foreach(TreeNode child in node.getChildren()) // loop on the children of the tag
         {
-            RecursivePrint(child);
-            bool flag = false;
-            foreach(List<TreeNode> list in lists)
+            saveChildrenCollected(child); // call it recursively on the child
+            bool flag = false; // flag to check if it was found in one of the lists
+            foreach(List<TreeNode> list in lists) // loop on each list
             {
-                if(child.getName().Equals(list[0].getName()))
+                if(child.getName().Equals(list[0].getName())) // if the name of the tag is same as the name of the elements of the list
                 {
-                    list.Add(child);
-                    flag = true;
+                    list.Add(child); // add it to the existing list
+                    flag = true; // set the flag to true --> meaning it was found in one of the lists
                     break;
                 }
             }
 
-            if(!flag)
+            if(!flag) // if not found in the lists
             {
-                List<TreeNode> temp = new List<TreeNode>();
-                temp.Add(child);
-                lists.Add(temp);
+                List<TreeNode> temp = new List<TreeNode>(); // create new list
+                temp.Add(child); // append the new  child tag into it 
+                lists.Add(temp); // add it to the list of lists
             }
         }
 
-        node.setChildrenCollected(lists);
+        node.setChildrenCollected(lists); // set the childrenCollected field of the note to the list of lists
     } 
 
 
-    public void recursionAgain(TreeNode node, StreamWriter writer,bool isRepeated)
+
+    /*
+     * the function loops on the childrenCollected of each node and if a list of the lists
+     * has more than one element then it prints as an array , but if the list is of length one then print it
+     * as an object normally
+     * 
+     * the boolean isRepeated indicates that the currentNode is one of a repeated tags that is a part of the array
+     * the boolean isLast indicates that this tag is the last child for its parent so not to add an extra ','
+     */
+    public void printJson(TreeNode node, StreamWriter writer,bool isRepeated,bool isLast)
     {
-        if(!isRepeated && node.getChildren()!=null)
+        /* if the tag is not one of the repeated tags and it has children then we need to print its name ,
+         * and add a '{'
+        */
+
+        if(!isRepeated && node.getChildren()!=null) 
         {
-            writer.Write($"{{\"{node.getName()}\" : ");
+            writer.Write($"{{\"{node.getName()}\" : {{");
         }
 
+
+        //while if the tag has no children then we also need to print its name only
         if (node.getChildrenCollected() == null)
         {
             writer.Write($"\"{node.getName()}\" : ");
-            writer.Write($"\"{node.getValue()}\",");
-            writer.WriteLine("");
-            return;
+            if(isLast) // if it's the last tag of its parent then no need to add ','
+            {
+                writer.Write($"\"{node.getValue()}\"");
+            }
+            else // otherwise add the ','
+            {
+                writer.Write($"\"{node.getValue()}\",");
+            }
+            writer.WriteLine(""); //After finishing the tag , add a new line
+            return; // the tag is done so return (base case)
         }
 
-        foreach(List<TreeNode> list in node.getChildrenCollected())
+        foreach(List<TreeNode> list in node.getChildrenCollected()) // if it has children loop on each list
         {
-            if(list.Count==1)
+            if(list.Count==1) // if the length of the list is one , then there's nothing special
             { 
-                recursionAgain(list[0], writer,false);
-            }
-            else
-            {
-                writer.Write($"[{{{list[0].getName()} : ");
-                foreach(TreeNode t in list)
+                if(list==node.getChildrenCollected()[node.getChildrenCollected().Count-1]) // if last tag for the parent
                 {
-                    writer.Write("{");
-                    recursionAgain(t,writer,true);
-                    writer.Write(",");
-;
-
+                    printJson(list[0], writer, false, true);
+                }
+                else // if not the last tag for the parent
+                {
+                    printJson(list[0], writer, false, false);
+                }
+            }
+            else // if the length is greater than one 
+            {
+                writer.Write($"\"{list[0].getName()}\" : [ "); //start the repeated tags with the name of the first one and a '['
+                foreach(TreeNode t in list) // loop on each tag of the repeated ones
+                {
+                    writer.Write("{"); // every tag of the repeated ones is enclosed in a '{'
+                    if(t==list[list.Count-1]) // if it's the last item in its parent
+                    {
+                        printJson(t, writer, true, true);
+                    }
+                    else
+                    {
+                        printJson(t, writer, true, false);
+                        writer.Write(",");
+                    }
 
                 }
-                writer.Write("]");
-
+                writer.Write("]"); // close the array of the repeated items
             }
         }
-
+        writer.Write("}"); // after processing all the children of a tag close it 
+        if(node.getDepth()==0) // close the root
+        {
+            writer.Write('}');
+        }
     }
 
-    public void  ShowTree() // the one used with the button
+    public void  ShowJson() // the one used with the button
     {
-        StreamWriter writer = new StreamWriter(@"Assets/JSON.txt");
-        writer.AutoFlush = true;
-        List<string> arr = ScanThroughXML();
-        TreeNode node = new TreeNode();
-        int i = 0;
-        fillTree(node, arr, ref i);
-        RecursivePrint(node);
-        recursionAgain(node,writer,false);
+        StreamWriter writer = new StreamWriter(@"Assets/JSON.txt"); // open text file to write the json string in
+        writer.AutoFlush = true; // to flush the buffer (common error to not print all the text if set to false)
+        List<string> arr = ScanThroughXML(); // tockenize the xml string  (described above)
+        TreeNode node = new TreeNode(); // create a node (root)
+        int i = 0; // starting index to loop over the tockenized array 
+        fillTree(node, arr, ref i); // turn the tockenized version of the xml to a tree
+        saveChildrenCollected(node);
+        printJson(node,writer,false,true); // print the json string (very self explanatory , hehe :))
 
 
 
