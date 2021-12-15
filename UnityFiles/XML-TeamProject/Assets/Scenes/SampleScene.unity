@@ -2473,7 +2473,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2014096620}
         m_TargetAssemblyTypeName: Jsonify, Assembly-CSharp
-        m_MethodName: ScanThroughXML
+        m_MethodName: ShowTree
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

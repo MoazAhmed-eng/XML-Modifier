@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using System.IO;
 
 
 
@@ -13,6 +14,7 @@ public class TreeNode
     int depth;
     List<string> attributes;
     List<TreeNode> children;
+    List<List<TreeNode>> childrenCollected;
 
     public TreeNode(string name , string value)
     {
@@ -30,11 +32,17 @@ public class TreeNode
         this.value = null;
         this.attributes = null;
         this.children = null;
+        this.childrenCollected = null;
     }
 
     public List<TreeNode> getChildren()
     {
         return children;
+    }
+
+    public List<List<TreeNode>> getChildrenCollected()
+    {
+        return childrenCollected;
     }
 
     public int getDepth()
@@ -74,6 +82,11 @@ public class TreeNode
         this.value = value;
     }
 
+    public void setChildrenCollected(List<List<TreeNode>> list)
+    {
+        this.childrenCollected = list;
+    }
+
     public void setAttributes(List<string> attributes)
     {
         this.attributes = attributes;
@@ -103,6 +116,11 @@ public class Tree
 
 public class Jsonify : MonoBehaviour
 {
+    /* this function parses the xml and gives back a list containing a tockenized version of the xml file ,
+     * where the tag names is saved as "_tagName"
+     * and the values are saved as is
+     * and the attributes are saved as "*attributeName"
+    */
     public List<string> ScanThroughXML() 
         // works with minified text
     {
@@ -144,7 +162,7 @@ public class Jsonify : MonoBehaviour
                     attTemp.Append('*'); // add the * to the temp
                     attTemp.Append(element.Split('=')[0]); // add the name of the attribute
                     tockenized.Add(attTemp.ToString()); // add it to the list
-                    tockenized.Add(element.Split('=')[1]); // add its value 
+                    tockenized.Add(element.Split('=')[1].Replace("\"","")); // add its value 
                     tockenized.Add("/"); // add '/' because we deal with it as a tag
                     attTemp.Clear();
                 }
@@ -178,37 +196,96 @@ public class Jsonify : MonoBehaviour
         return tockenized;
     }
 
-    // just for debugging
-    public void  recursivePrint(TreeNode node)
+
+
+
+    // the one that prints the json string and saves it
+    public void  RecursivePrint(TreeNode node)
     {
-        print($"{{\"{node.getName()}\" : ");
 
+        if (node.getChildren() == null) return;
 
-        if (node.getChildren() == null)
+        List<List<TreeNode>> lists = new List<List<TreeNode>>();
+
+        foreach(TreeNode child in node.getChildren())
         {
-            print($"\"{node.getValue()}\"}}");
-            return;
+            RecursivePrint(child);
+            bool flag = false;
+            foreach(List<TreeNode> list in lists)
+            {
+                if(child.getName().Equals(list[0].getName()))
+                {
+                    list.Add(child);
+                    flag = true;
+                    break;
+                }
+            }
+
+            if(!flag)
+            {
+                List<TreeNode> temp = new List<TreeNode>();
+                temp.Add(child);
+                lists.Add(temp);
+            }
         }
 
-
-        foreach (TreeNode t in node.getChildren().ToArray())
-        {
-            recursivePrint(t);
-        }
-
-        print("}");
-
-
+        node.setChildrenCollected(lists);
     } 
 
 
-    public void  ShowTree()
+    public void recursionAgain(TreeNode node, StreamWriter writer,bool isRepeated)
     {
+        if(!isRepeated && node.getChildren()!=null)
+        {
+            writer.Write($"{{\"{node.getName()}\" : ");
+        }
+
+        if (node.getChildrenCollected() == null)
+        {
+            writer.Write($"\"{node.getName()}\" : ");
+            writer.Write($"\"{node.getValue()}\",");
+            writer.WriteLine("");
+            return;
+        }
+
+        foreach(List<TreeNode> list in node.getChildrenCollected())
+        {
+            if(list.Count==1)
+            { 
+                recursionAgain(list[0], writer,false);
+            }
+            else
+            {
+                writer.Write($"[{{{list[0].getName()} : ");
+                foreach(TreeNode t in list)
+                {
+                    writer.Write("{");
+                    recursionAgain(t,writer,true);
+                    writer.Write(",");
+;
+
+
+                }
+                writer.Write("]");
+
+            }
+        }
+
+    }
+
+    public void  ShowTree() // the one used with the button
+    {
+        StreamWriter writer = new StreamWriter(@"Assets/JSON.txt");
+        writer.AutoFlush = true;
         List<string> arr = ScanThroughXML();
         TreeNode node = new TreeNode();
         int i = 0;
         fillTree(node, arr, ref i);
-        recursivePrint(node);
+        RecursivePrint(node);
+        recursionAgain(node,writer,false);
+
+
+
     }
 
     /*
