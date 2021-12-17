@@ -22,15 +22,10 @@ using UnityEngine;
 
                 else if (str[index + 1] == '/') // if it's a closing tag  read the name ,and then pop the top element of the stack
                 {
-                    if (stack.Count == 0) // if there's opening tag and the stack is empty then it's faulty
-                    {
-                        status = 0;
-                        PlayerPrefs.SetInt("isValid", status);
-                        return;
-                    }
 
                     index += 2;
                     string temp = "";
+
                     int startIndex = index; //start of the potentially faulty tag
 
                     while (str[index] != '>' & index < length) // read the name of the tag
@@ -38,6 +33,15 @@ using UnityEngine;
                         temp += str[index];
                         index++;
                     }
+
+                    if (stack.Count == 0) // if there's opening tag and the stack is empty then it's faulty
+                    {
+                        status = 0;
+                        PlayerPrefs.SetInt("isValid", status);
+                        errorLines.Add("This is closing tag: "+ temp + "doesn't have corresponding opening tag");
+                        continue;
+                    }
+
                     int lastIndex = index; //ending of the potentially faulty tag
 
                     string top = (string)stack.Peek();
