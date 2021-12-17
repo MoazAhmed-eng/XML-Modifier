@@ -8,6 +8,7 @@ using UnityEngine;
     {
         int status = 1;
         Stack stack = new Stack();
+        List<string> errorLines = new List<string>();
         string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
         int length = str.Length;
         for (int index = 0; index < length; index++)
@@ -55,7 +56,7 @@ using UnityEngine;
                         PlayerPrefs.SetInt("isValid", status);
                         PlayerPrefs.SetInt("startIndex", startIndex);
                         PlayerPrefs.SetInt("lastIndex", lastIndex);
-                        return;
+                        errorLines.Add("Inidentical tags, found closing tag: "+ temp + "expected closing tag: " + top);
                     }
 
                 }
@@ -77,7 +78,7 @@ using UnityEngine;
                         {
                             status = 0;
                             PlayerPrefs.SetInt("isValid", status);
-                            return;
+                            errorLines.Add("Found two consecutive <, without >");
                         }
 
                         if (str[index] == '/' & str[index + 1] == '>') // check for self-closing tags
@@ -94,7 +95,7 @@ using UnityEngine;
                     {
                         status = 0;
                         PlayerPrefs.SetInt("isValid", status);
-                        return;
+                        errorLines.Add("Found empty tag <>");
                     }
 
                     // if it's self closing
@@ -108,12 +109,13 @@ using UnityEngine;
             }
         }
 
-        if (stack.Count!=0)
+        while (stack.Count!=0)
         {
+            stack.Pop();
+            errorLines.Add("Found unclosed opening tags, popping them");
             Debug.Log("the stack wasn't empty at the end soo, BAD XML !!");
             status = 0;
             PlayerPrefs.SetInt("isValid", status);
-            return;
         }
 
         PlayerPrefs.SetInt("isValid", status);
