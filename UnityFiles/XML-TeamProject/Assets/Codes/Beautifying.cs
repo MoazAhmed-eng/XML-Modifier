@@ -41,7 +41,7 @@ public class Beautifying : MonoBehaviour
             else if(tocken[0]=='/')
             {
                 str.Append(addIndentation(level));
-                str.Append($"<{s.Peek()}/>\n");
+                str.Append($"</{s.Peek()}>\n");
                 s.Pop();
                 level--;
             }
