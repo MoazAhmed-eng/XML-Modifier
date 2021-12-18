@@ -114,7 +114,7 @@ public class Jsonify : MonoBehaviour
      * and the values are saved as is
      * and the attributes are saved as "*attributeName"
     */
-    public List<string> ScanThroughXML() 
+    public static List<string> ScanThroughXML() 
         // works with minified text
     {
         GameObject.FindGameObjectWithTag("minify").GetComponent<Minifying>().Minify(); // call the minfy function
@@ -359,7 +359,7 @@ public class Jsonify : MonoBehaviour
      * 
      * 
      */
-    public void fillTree(TreeNode node , List<string> arr , ref int i) 
+    public  static void fillTree(TreeNode node , List<string> arr , ref int i) 
     {
         for(; i<arr.Count;i++)
         {

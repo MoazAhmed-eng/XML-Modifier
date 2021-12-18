@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
- class Validating : MonoBehaviour
+
+class Validating : MonoBehaviour
 {
 
     public void Update()
@@ -19,9 +21,9 @@ using UnityEngine;
     }
     public void Validate()
     {
-        PlayerPrefs.SetInt("didCheck", 1);
         int status = 1;
         Stack stack = new Stack();
+        List<string> errorLines = new List<string>();
         string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
         int length = str.Length;
         for (int index = 0; index < length; index++)
@@ -35,15 +37,10 @@ using UnityEngine;
 
                 else if (str[index + 1] == '/') // if it's a closing tag  read the name ,and then pop the top element of the stack
                 {
-                    if (stack.Count == 0) // if there's opening tag and the stack is empty then it's faulty
-                    {
-                        status = 0;
-                        PlayerPrefs.SetInt("isValid", status);
-                        return;
-                    }
 
                     index += 2;
                     string temp = "";
+
                     int startIndex = index; //start of the potentially faulty tag
 
                     while (str[index] != '>' & index < length) // read the name of the tag
@@ -51,6 +48,15 @@ using UnityEngine;
                         temp += str[index];
                         index++;
                     }
+
+                    if (stack.Count == 0) // if there's opening tag and the stack is empty then it's faulty
+                    {
+                        status = 0;
+                        PlayerPrefs.SetInt("isValid", status);
+                        errorLines.Add("This is closing tag: " + temp + "doesn't have corresponding opening tag");
+                        continue;
+                    }
+
                     int lastIndex = index; //ending of the potentially faulty tag
 
                     string top = (string)stack.Peek();
@@ -69,7 +75,7 @@ using UnityEngine;
                         PlayerPrefs.SetInt("isValid", status);
                         PlayerPrefs.SetInt("startIndex", startIndex);
                         PlayerPrefs.SetInt("lastIndex", lastIndex);
-                        return;
+                        errorLines.Add("Inidentical tags, found closing tag: " + temp + "expected closing tag: " + top);
                     }
 
                 }
@@ -91,7 +97,7 @@ using UnityEngine;
                         {
                             status = 0;
                             PlayerPrefs.SetInt("isValid", status);
-                            return;
+                            errorLines.Add("Found two consecutive <, without >");
                         }
 
                         if (str[index] == '/' & str[index + 1] == '>') // check for self-closing tags
@@ -108,13 +114,13 @@ using UnityEngine;
                     {
                         status = 0;
                         PlayerPrefs.SetInt("isValid", status);
-                        return;
+                        errorLines.Add("Found empty tag <>");
                     }
 
                     // if it's self closing
                     if (temp.Equals("SELF-CLOSING-TAG"))
                     {
-                        continue; 
+                        continue;
                     }
 
                     stack.Push(temp);
@@ -122,19 +128,23 @@ using UnityEngine;
             }
         }
 
-        if (stack.Count!=0)
+        while (stack.Count != 0)
         {
-            Debug.Log("the stack wasn't empty at the end soo, BAD XML !!");
+            stack.Pop();
+            errorLines.Add("Found unclosed opening tags, popping them");
             status = 0;
             PlayerPrefs.SetInt("isValid", status);
-            return;
         }
 
+        StreamWriter writer = new StreamWriter(@"validationLOG.txt");
+        writer.AutoFlush = true; // to flush the buffer (common error to not print all the text if set to false)
+        foreach(string error in errorLines)
+        {
+            writer.WriteLine(error);
+        }
+        writer.Close();
+
         PlayerPrefs.SetInt("isValid", status);
-
-        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().color = Color.green;
-        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().text = " This is a valid XML!";
-
         return;
     }
 }
