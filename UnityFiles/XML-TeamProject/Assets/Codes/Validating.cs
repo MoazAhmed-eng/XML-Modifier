@@ -4,6 +4,19 @@ using UnityEngine;
 
  class Validating : MonoBehaviour
 {
+
+    public void Update()
+    {
+        if(PlayerPrefs.GetInt("json")==1)
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
+        }
+        else
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
+
+        }
+    }
     public void Validate()
     {
         PlayerPrefs.SetInt("didCheck", 1);
@@ -118,6 +131,10 @@ using UnityEngine;
         }
 
         PlayerPrefs.SetInt("isValid", status);
+
+        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().color = Color.green;
+        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().text = " This is a valid XML!";
+
         return;
     }
 }

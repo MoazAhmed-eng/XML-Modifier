@@ -240,25 +240,38 @@ public class Jsonify : MonoBehaviour
      */
     public void printJson(TreeNode node, StreamWriter writer,bool isRepeated,bool isLast)
     {
+        if (node.getDepth() == 0) // close the root
+        {
+            writer.Write('{');
+        }
+
+        if(isRepeated && node.getChildren()!=null)
+        {
+            writer.Write($"{{");
+        }
+
         /* if the tag is not one of the repeated tags and it has children then we need to print its name ,
          * and add a '{'
         */
 
-        if(!isRepeated && node.getChildren()!=null) 
+        if (!isRepeated && node.getChildren()!=null) 
         {
-            writer.Write($"{{\"{node.getName()}\" : {{");
+            writer.Write($"\"{node.getName()}\" : {{");
         }
 
 
         //while if the tag has no children then we also need to print its name only
         if (node.getChildrenCollected() == null)
         {
-            writer.Write($"\"{node.getName()}\" : ");
-            if(isLast) // if it's the last tag of its parent then no need to add ','
+            if(!isRepeated)
+            {
+                writer.Write($"\"{node.getName()}\" : ");
+            }
+            if (isLast) // if it's the last tag of its parent then no need to add ','
             {
                 writer.Write($"\"{node.getValue()}\"");
             }
-            else // otherwise add the ','
+            else if(!isLast) // otherwise add the ','
             {
                 writer.Write($"\"{node.getValue()}\",");
             }
@@ -284,7 +297,6 @@ public class Jsonify : MonoBehaviour
                 writer.Write($"\"{list[0].getName()}\" : [ "); //start the repeated tags with the name of the first one and a '['
                 foreach(TreeNode t in list) // loop on each tag of the repeated ones
                 {
-                    writer.Write("{"); // every tag of the repeated ones is enclosed in a '{'
                     if(t==list[list.Count-1]) // if it's the last item in its parent
                     {
                         printJson(t, writer, true, true);
@@ -292,14 +304,19 @@ public class Jsonify : MonoBehaviour
                     else
                     {
                         printJson(t, writer, true, false);
-                        writer.Write(",");
+                        //writer.Write(",");
                     }
-
                 }
                 writer.Write("]"); // close the array of the repeated items
             }
         }
         writer.Write("}"); // after processing all the children of a tag close it 
+
+        if(!isLast) // if it was a list and not the last child
+        {
+            writer.Write(",");
+        }
+
         if(node.getDepth()==0) // close the root
         {
             writer.Write('}');
@@ -308,7 +325,7 @@ public class Jsonify : MonoBehaviour
 
     public void  ShowJson() // the one used with the button
     {
-        StreamWriter writer = new StreamWriter(@"Assets/JSON.txt"); // open text file to write the json string in
+        StreamWriter writer = new StreamWriter(@"JSON.txt"); // open text file to write the json string in
         writer.AutoFlush = true; // to flush the buffer (common error to not print all the text if set to false)
         List<string> arr = ScanThroughXML(); // tockenize the xml string  (described above)
         TreeNode node = new TreeNode(); // create a node (root)
@@ -316,9 +333,12 @@ public class Jsonify : MonoBehaviour
         fillTree(node, arr, ref i); // turn the tockenized version of the xml to a tree
         saveChildrenCollected(node);
         printJson(node,writer,false,true); // print the json string (very self explanatory , hehe :))
-
-
-
+        writer.Close(); // close the file
+        string json = System.IO.File.ReadAllText(@"JSON.txt"); // read from the JSON text
+        GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text = json; // show it on the screen
+        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().color = Color.green;
+        GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().text = " Jsonify Done";
+        PlayerPrefs.SetInt("json", 1);
     }
 
     /*
@@ -364,6 +384,19 @@ public class Jsonify : MonoBehaviour
                 i++;
                 fillTree(child,arr,ref i);
             }
+        }
+    }
+
+    public void Update()
+    {
+        if (PlayerPrefs.GetInt("isValid") == 1 & PlayerPrefs.GetInt("json")!=1)
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
+        }
+        else
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
+
         }
     }
 }

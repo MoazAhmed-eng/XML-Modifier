@@ -16,7 +16,17 @@ public class Correcting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(PlayerPrefs.GetInt("isValid")==1)
+        if (PlayerPrefs.GetInt("json") == 1)
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
+        }
+        else
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
+
+        }
+
+        if (PlayerPrefs.GetInt("isValid")==1)
         {
             gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
         }
