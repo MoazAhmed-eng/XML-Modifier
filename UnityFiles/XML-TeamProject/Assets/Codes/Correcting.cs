@@ -148,13 +148,13 @@ public class Correcting : MonoBehaviour
 
         }
 
-        if (PlayerPrefs.GetInt("isValid")==1)
+        if (PlayerPrefs.GetInt("isValid")!=1 && PlayerPrefs.GetInt("checked")==1)
         {
-            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
         }
         else
         {
-            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
 
         }
     }

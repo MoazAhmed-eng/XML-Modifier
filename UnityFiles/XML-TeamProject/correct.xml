@@ -1,7 +1,7 @@
 <users>
     <user>
         <id>1</id>
-        <name>Ahmed Ali</name>
+        <name>Ahmed Ali
         <posts>
             <post>
                 <body>
@@ -15,7 +15,7 @@
                         finance
                     </topic>
                 </topic></topics>
-            </post>
+            
             <post>
                 <body>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
@@ -26,7 +26,7 @@
                     </topic>
                 </topics>
             </post>
-        </posts>
+        </post></posts>
         <followers>
             <follower>
                 <id>2</id>
@@ -35,7 +35,7 @@
                 <id>3</id>
             </follower>
         </followers>
-    </user>
+    </name></user>
     <user>
         <id>2</id>
         <name>Yasser Ahmed</name>

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Text;
 
 
 class Validating : MonoBehaviour
@@ -21,47 +22,71 @@ class Validating : MonoBehaviour
     }
     public void Validate()
     {
+        List<string> correctedLines = new List<string>();
+        List<string> faultyTags = new List<string>();
+        Stack<string> stack = new Stack<string>();
+        string xmlFile = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
+        string lineToString;
+        int start = 0, end = 0;
+        bool foundChar1, foundChar2, foundError;
         int status = 1;
-        Stack stack = new Stack();
-        List<string> errorLines = new List<string>();
-        string str = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
-        int length = str.Length;
-        for (int index = 0; index < length; index++)
+
+        /* Part 2 checking for stack problems after syntax errors*/
+        for (int j = 0; j < xmlFile.Length; j++)
         {
-            if (str[index] == '<')
+            if (xmlFile[j] == '<')
             {
-                if (str[index + 1] == '!' | str[index + 1] == '?') // if it's a comment or a processing statement , ignore it
+                if (xmlFile[j + 1] == '!' || xmlFile[j + 1] == '?')
                 {
                     continue;
                 }
-
-                else if (str[index + 1] == '/') // if it's a closing tag  read the name ,and then pop the top element of the stack
+                else if (xmlFile[j + 1] != '/') //opening
                 {
-
-                    index += 2;
+                    j++;
                     string temp = "";
 
-                    int startIndex = index; //start of the potentially faulty tag
-
-                    while (str[index] != '>' & index < length) // read the name of the tag
+                    while (xmlFile[j] != '>')
                     {
-                        temp += str[index];
-                        index++;
+                        if (xmlFile[j] == ' ')
+                        {
+                            break;
+                        }
+                        temp += xmlFile[j];
+                        j++;
                     }
-
-                    if (stack.Count == 0) // if there's opening tag and the stack is empty then it's faulty
+                    stack.Push(temp);
+                }
+                else if (xmlFile[j + 1] == '/')
+                {
+                    if (stack.Count == 0)
                     {
+                        string tempp = "";
                         status = 0;
-                        PlayerPrefs.SetInt("isValid", status);
-                        errorLines.Add("This is closing tag: " + temp + "doesn't have corresponding opening tag");
+                        //PlayerPrefs.SetInt("isValid", status);
+                        StringBuilder sb = new StringBuilder(xmlFile);
+                        while (xmlFile[j] != '>' && j < xmlFile.Length)
+                        {
+                            tempp += sb[j];
+                            sb[j] = '*';
+                            j++;
+                        }
+                        tempp += sb[j];
+                        faultyTags.Add("There is no corresponding tag for the following  " + tempp + ", we removed it");
+                        sb[j] = '*';
+                        xmlFile = sb.ToString();
                         continue;
                     }
-
-                    int lastIndex = index; //ending of the potentially faulty tag
+                    j += 2;
+                    string temp = "";
+                    int startIndex = j; //start of the potentially faulty tag
+                    while (xmlFile[j] != '>' & j < xmlFile.Length) // read the name of the tag
+                    {
+                        temp += xmlFile[j];
+                        j++;
+                    }
+                    int lastIndex = j; //ending of the potentially faulty tag '>'
 
                     string top = (string)stack.Peek();
-
-
                     if (top.Equals(temp))
                     {
                         stack.Pop();
@@ -69,82 +94,74 @@ class Validating : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log($"ERROR , Expected: {top} , but found {temp}");
-                        status = 0;
-                        PlayerPrefs.SetString("Error", $"ERROR , Expected: {top} , but found {temp}");
-                        PlayerPrefs.SetInt("isValid", status);
-                        PlayerPrefs.SetInt("startIndex", startIndex);
-                        PlayerPrefs.SetInt("lastIndex", lastIndex);
-                        errorLines.Add("Inidentical tags, found closing tag: " + temp + "expected closing tag: " + top);
+                        string correctPart = xmlFile.Substring(0, startIndex - 2);
+                        int countChar = 0;
+                        while (!top.Equals(temp))
+                        {
+                            string add = "</" + (string)stack.Peek() + ">";
+                            correctPart += add;
+                            faultyTags.Add("Inidentical closing tags, Stack Top: " + add + "\n" + "Closing tag in the file: " + temp);
+                            countChar += add.Length;
+                            stack.Pop();
+                            if (stack.Count == 0)
+                            {
+                                correctPart += '\n';
+                                StringBuilder sb = new StringBuilder(xmlFile);
+                                startIndex -= 2;
+                                while (xmlFile[startIndex] != '>')
+                                {
+                                    sb[startIndex] = '*';
+                                    startIndex++;
+                                }
+                                sb[startIndex++] = '*';
+                                xmlFile = sb.ToString();
+                                break;
+
+                            }
+                            top = (string)stack.Peek();
+                        }
+                        stack.Pop();
+                        xmlFile = correctPart + xmlFile.Substring(startIndex - 2);
+                        j += countChar;
+
+
                     }
+
+
+
 
                 }
 
-                else
-                {
-                    string temp = ""; // a temporary string to store the name of the tag
-                    index++; // to advance to the next character after the '<'
 
-                    /*
-                    * if it's an opening tag , store the tag name while ignoring the attributes , and also check it the starting tag was never closed 
-                    * and also check for the self closing tags
-                    */
-
-                    while (str[index] != '>' & index < length & str[index] != ' ')
-                    {
-                        // the opening tag wasn't closed and another was opened
-                        if (str[index] == '<')
-                        {
-                            status = 0;
-                            PlayerPrefs.SetInt("isValid", status);
-                            errorLines.Add("Found two consecutive <, without >");
-                        }
-
-                        if (str[index] == '/' & str[index + 1] == '>') // check for self-closing tags
-                        {
-                            index++; // because we already checked the next character 
-                            temp = "SELF-CLOSING-TAG"; // so it doesn't get pushed to the stack
-                            break; // the tag ends
-                        }
-
-                        temp += str[index];
-                        index++;
-                    }
-                    if (temp.Length == 0) // the tag's name is empty
-                    {
-                        status = 0;
-                        PlayerPrefs.SetInt("isValid", status);
-                        errorLines.Add("Found empty tag <>");
-                    }
-
-                    // if it's self closing
-                    if (temp.Equals("SELF-CLOSING-TAG"))
-                    {
-                        continue;
-                    }
-
-                    stack.Push(temp);
-                }
             }
         }
 
         while (stack.Count != 0)
         {
+            xmlFile += '\n' + "</" + (string)stack.Peek() + ">";
+            faultyTags.Add("</" + (string)stack.Peek() + ">");
             stack.Pop();
-            errorLines.Add("Found unclosed opening tags, popping them");
-            status = 0;
-            PlayerPrefs.SetInt("isValid", status);
         }
-
+        xmlFile += '\n';
+        xmlFile = xmlFile.Replace("*", "");
         StreamWriter writer = new StreamWriter(@"validationLOG.txt");
         writer.AutoFlush = true; // to flush the buffer (common error to not print all the text if set to false)
-        foreach(string error in errorLines)
+        foreach (string error in faultyTags)
         {
             writer.WriteLine(error);
         }
         writer.Close();
 
-        PlayerPrefs.SetInt("isValid", status);
-        return;
+        if (faultyTags.Count != 0)
+        {
+            PlayerPrefs.SetInt("isValid", 0);
+        }
+        else
+        {
+            PlayerPrefs.SetInt("isValid", 1);
+
+        }
+
+        PlayerPrefs.SetInt("checked", 1);
     }
 }

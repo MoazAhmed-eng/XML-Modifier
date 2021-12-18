@@ -203,6 +203,7 @@ public class Jsonify : MonoBehaviour
 
         List<List<TreeNode>> lists = new List<List<TreeNode>>(); // the list of lists that holds the children lists
 
+
         foreach(TreeNode child in node.getChildren()) // loop on the children of the tag
         {
             saveChildrenCollected(child); // call it recursively on the child
@@ -310,6 +311,7 @@ public class Jsonify : MonoBehaviour
                 writer.Write("]"); // close the array of the repeated items
             }
         }
+
         writer.Write("}"); // after processing all the children of a tag close it 
 
         if(!isLast) // if it was a list and not the last child
