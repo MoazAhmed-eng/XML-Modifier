@@ -1,14 +1,20 @@
-{"catalog" : {"book" : [ {"*id" : "bk101",
-"author" : "Gambardella, Matthew",
-"title" : "XML Developer's Guide",
-"genre" : "Computer",
-"price" : "44.95",
-"publish_date" : "2000-10-01",
-"description" : "An in-depth look at creating applicationswith XML."
-},{"*id" : "bk102",
-"author" : "Ralls, Kim",
-"title" : "Midnight Rain",
-"genre" : "Fantasy"
-}]"publish_date" : "2000-12-16",
-"description" : "A former architect battles corporate zombies,an evil sorceress, and her own childhood to become queenof the world."
-}}
+{"users" : {"user" : [ {"id" : "1",
+"name" : "Ahmed Ali",
+"posts" : {"post" : [ {"body" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+"topics" : {"topic" : [ "economy",
+"finance"
+]}},{"body" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+"topics" : {"topic" : "solar_energy"
+}}]},"followers" : {"follower" : [ {"id" : "2"
+},{"id" : "3"
+}]}},{"id" : "2",
+"name" : "Yasser Ahmed",
+"posts" : {"post" : {"body" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+"topics" : {"topic" : "education"
+}}},"followers" : {"follower" : {"id" : "1"
+}}},{"id" : "3",
+"name" : "Mohamed Sherif",
+"posts" : {"post" : {"body" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+"topics" : {"topic" : "sports"
+}}},"followers" : {"follower" : {"id" : "1"
+}}}]}}

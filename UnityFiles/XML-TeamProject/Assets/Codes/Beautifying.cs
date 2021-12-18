@@ -27,9 +27,11 @@ public class Beautifying : MonoBehaviour
         StringBuilder str = new StringBuilder();
         StringBuilder lastOpenedTag = new StringBuilder();
         int level = -1;
+
+
         foreach (string tocken in arr)
         {
-            if(tocken[0]=='_')
+            if(tocken[0]=='_' || tocken[0]=='*')
             {
                 string name = tocken.Substring(1);
                 s.Push(name);
