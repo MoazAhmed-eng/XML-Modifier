@@ -38,7 +38,7 @@ using UnityEngine;
                     {
                         status = 0;
                         PlayerPrefs.SetInt("isValid", status);
-                        errorLines.Add("This is closing tag: "+ temp + "doesn't have corresponding opening tag");
+                        errorLines.Add("There is no corresponding tag for the following:  </" + tempp + ">, we removed it");
                         continue;
                     }
 
@@ -60,7 +60,7 @@ using UnityEngine;
                         PlayerPrefs.SetInt("isValid", status);
                         PlayerPrefs.SetInt("startIndex", startIndex);
                         PlayerPrefs.SetInt("lastIndex", lastIndex);
-                        errorLines.Add("Inidentical tags, found closing tag: "+ temp + "expected closing tag: " + top);
+                        errorLines.Add("There is at least 1 opening tag that wasn't closed " + temp);
                     }
 
                 }

@@ -10,11 +10,15 @@ using System.Threading.Tasks;
     {
         public static void Correctingg()
         {
+            /* !Comment: Get the file path from the user*/
             string filePath = @"E:\Kolyaa\3rd Year\1st Semester\DataStructure\XML File\UnityFiles\XML-TeamProject\Assets\test.txt";
             List<string> lines = new List<string>();
             List<string> correctedLines = new List<string>();
             List<string> faultyTags = new List<string>();
             Stack<string> stack = new Stack<string>();
+            /* !Comment: openingTags is mainly used to know whether the root opening tag exists or no*/
+            List<string> openingTags = new List<string>();
+            int startindex = 0;
             lines = File.ReadAllLines(filePath).ToList();
             string xmlFile = File.ReadAllText(filePath);
             string lineToString;
@@ -81,11 +85,14 @@ using System.Threading.Tasks;
             {
                 if (xmlFile[j] == '<')
                 {
+                    /* !Comment: if it is a comment, discard it*/
                     if (xmlFile[j + 1] == '!' || xmlFile[j + 1] == '?')
                     {
                         continue;
                     }
-                    else if (xmlFile[j + 1] != '/') //opening
+
+                    /* !Comment: if it is an opening tag, push it to the stack*/
+                    else if (xmlFile[j + 1] != '/')
                     {
                         j++;
                         string temp = "";
@@ -99,13 +106,17 @@ using System.Threading.Tasks;
                             temp += xmlFile[j];
                             j++;
                         }
+                        openingTags.Add(temp);
                         stack.Push(temp);
                     }
+                   /* !Comment: if it is a closing tag, we will check for several errors*/
                     else if (xmlFile[j + 1] == '/')
                     {
+                        /* !Comment: Error1: Found closing tag meanwhile the stack is empty*/
                         if (stack.Count == 0)
                         {
                             string tempp = "";
+                            
                             status = 0;
                             //PlayerPrefs.SetInt("isValid", status);
                             StringBuilder sb = new StringBuilder(xmlFile);
@@ -116,6 +127,16 @@ using System.Threading.Tasks;
                                 j++;
                             }
                             tempp += sb[j];
+                            string root = tempp.Substring(2);
+                            /* !Comment: If it is the closing tag of the root, and there is no opening tag for it, we add it 
+                            to the file, then break*/
+                            if(!openingTags.Contains(root))
+                            {
+                                faultyTags.Add("The root was missing");
+                                xmlFile = "<" + root + ">\n" + xmlFile;
+                                break;
+                            }
+                            /* !Comment: if it is a closing tag, but not the root, we remove it from the file*/
                             faultyTags.Add("There is no corresponding tag for the following  " + tempp +", we removed it");
                             sb[j] = '*';
                             xmlFile = sb.ToString();
@@ -129,14 +150,16 @@ using System.Threading.Tasks;
                             temp += xmlFile[j];
                             j++;
                         }
+                        
                         int lastIndex = j; //ending of the potentially faulty tag '>'
-
+                        /* !Comment: If the stack top is the same as the closing tag we received, Pop it!*/
                         string top = (string)stack.Peek();
                         if (top.Equals(temp))
                         {
                             stack.Pop();
                             continue;
                         }
+                        /* !Comment: Received different closing tag than the expected on the top of the stack*/
                         else
                         {
                             //Debug.Log($"ERROR , Expected: {top} , but found {temp}");
@@ -147,33 +170,43 @@ using System.Threading.Tasks;
                             //PlayerPrefs.SetInt("lastIndex", lastIndex);
                             string correctPart = xmlFile.Substring(0, startIndex - 2);
                             int countChar = 0;
+                            /*As long as we didn't reach the root, we pop all the tags until we reach to the requried
+                            tag*/
                             while (!top.Equals(temp))
                             {
-                                string add = "</" + (string)stack.Peek() + ">";
-                                correctPart += add;
-                                faultyTags.Add("Inidentical closing tags, Stack Top: " + add +"\n" +"Closing tag in the file: " + temp);
-                                countChar += add.Length;
-                                stack.Pop();
-                                if (stack.Count == 0)
+                                /* !Comment: If we reached the root, and didn't find the tag, we remove it*/
+                                if (stack.Count == 1)
                                 {
-                                    correctPart += '\n';
+                                    faultyTags.Add("The following closing tag: " + temp + " wasn't found in the stack, so we removed it");
                                     StringBuilder sb = new StringBuilder(xmlFile);
                                     startIndex -= 2;
+                                    startindex = startIndex;
                                     while (xmlFile[startIndex] != '>')
                                     {
                                         sb[startIndex] = '*';
                                         startIndex++;
                                     }
-                                    sb[startIndex++] = '*';
+                                    sb[startIndex] = '*';
                                     xmlFile = sb.ToString();
+                                    xmlFile = xmlFile.Replace("*", "");
+                                    //Console.WriteLine(xmlFile);
                                     break;
 
                                 }
+                                string add = "</" + (string)stack.Peek() + ">";
+                                correctPart += add;
+                                faultyTags.Add("Inidentical closing tags, the expected tag is: " + top + ", found: " + temp);
+                                countChar += add.Length;
+                                stack.Pop();
                                 top = (string)stack.Peek();
                             }
-                            stack.Pop();
-                            xmlFile = correctPart + xmlFile.Substring(startIndex - 2);
-                            j += countChar;
+                            if (stack.Count > 1)
+                            {
+                                stack.Pop();
+                            }
+
+                            xmlFile = correctPart + xmlFile.Substring(startindex);
+                            j += countChar-9;
 
 
                         }
@@ -190,17 +223,11 @@ using System.Threading.Tasks;
             while (stack.Count != 0)
             {
                 xmlFile += '\n' + "</" + (string)stack.Peek() + ">";
-                faultyTags.Add("</" + (string)stack.Peek() + ">");
+                faultyTags.Add("The Following tag wasn't closed: " + (string)stack.Peek());
                 stack.Pop();
             }
-            xmlFile += '\n';
-            xmlFile = xmlFile.Replace("*", "");
         }
 
-        public static void Main()
-        {
-            Correctingg();
-        }
     }
 }
     
