@@ -9,7 +9,7 @@ public class Minifying : MonoBehaviour
 
     public void Update()
     {
-        if (PlayerPrefs.GetInt("json") == 1)
+        if (PlayerPrefs.GetInt("json") == 1 || PlayerPrefs.GetInt("correct") == 1)
         {
             gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
         }

@@ -55,7 +55,7 @@ public class Beautifying : MonoBehaviour
             }
         }
 
-        GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text = str.ToString();
+        GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text = str.ToString();   
         GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().color = Color.green;
         GameObject.FindGameObjectWithTag("instr").GetComponent<UnityEngine.UI.Text>().text = " Beautify Done";
 
@@ -68,15 +68,19 @@ public class Beautifying : MonoBehaviour
 
     void Update()
     {
-        if (PlayerPrefs.GetInt("json") == 1)
-        {
-            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
-        }
-        else
+
+        if (PlayerPrefs.GetInt("isValid") == 1 && PlayerPrefs.GetInt("checked") == 1 && PlayerPrefs.GetInt("json") != 1 && PlayerPrefs.GetInt("correct") != 1)
+
         {
             gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
 
         }
+        else
+        {
+            gameObject.GetComponent<UnityEngine.UI.Button>().interactable = false;
 
+        }
     }
+
+    
 }

@@ -1,7 +1,7 @@
 <users>
     <user>
         <id>1</id>
-        <name>Ahmed Ali
+        <name>Ahmed Ali</name>
         <posts>
             <post>
                 <body>
@@ -10,11 +10,11 @@
                 <topics>
                     <topic>
                         economy
-                    
-                    <topic>
-                        finance
                     </topic>
-                </topic></topics>
+                    
+                        finance
+                    </topics></post></posts></user>
+                
             
             <post>
                 <body>
@@ -26,7 +26,7 @@
                     </topic>
                 </topics>
             </post>
-        </post></posts>
+        
         <followers>
             <follower>
                 <id>2</id>
@@ -35,7 +35,7 @@
                 <id>3</id>
             </follower>
         </followers>
-    </name></user>
+    
     <user>
         <id>2</id>
         <name>Yasser Ahmed</name>

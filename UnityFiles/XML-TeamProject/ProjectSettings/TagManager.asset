@@ -8,6 +8,10 @@ TagManager:
   - mainText
   - minify
   - instr
+  - New tag
+  - in
+  - hide
+  - hide2
   layers:
   - Default
   - TransparentFX

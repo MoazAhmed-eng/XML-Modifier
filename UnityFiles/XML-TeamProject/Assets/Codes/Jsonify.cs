@@ -391,7 +391,7 @@ public class Jsonify : MonoBehaviour
 
     public void Update()
     {
-        if (PlayerPrefs.GetInt("isValid") == 1 & PlayerPrefs.GetInt("json")!=1)
+        if (PlayerPrefs.GetInt("isValid") == 1 & PlayerPrefs.GetInt("json")!=1 && PlayerPrefs.GetInt("correct") != 1)
         {
             gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
         }
