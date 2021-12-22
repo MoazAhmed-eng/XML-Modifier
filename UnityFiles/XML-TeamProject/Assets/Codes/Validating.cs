@@ -11,6 +11,8 @@ class Validating : MonoBehaviour
     public void Validate()
     
     {
+        PlayerPrefs.SetInt("hide", 0);
+
         /* !Comment: Get the file path from the user*/
         string xmlFile = GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text;
         List<int> insertIndices1 = new List<int>();
@@ -38,6 +40,7 @@ class Validating : MonoBehaviour
                 /* !Comment: if it is an opening tag, push it to the stack*/
                 else if (xmlFile[j + 1] != '/')
                 {
+                    int insertOpening = j;
                     j++;
                     string temp = "";
 
@@ -50,12 +53,15 @@ class Validating : MonoBehaviour
                         temp += xmlFile[j];
                         j++;
                     }
+                    int stopOpening = j+1;
                     openingTags.Add(temp);
+                    temp = temp + "$" + insertOpening + "$" + stopOpening;
                     stack.Push(temp);
                 }
                 /* !Comment: if it is a closing tag, we will check for several errors*/
                 else if (xmlFile[j + 1] == '/')
                 {
+                    int insertRoot = j;
                     /* !Comment: Error1: Found closing tag meanwhile the stack is empty*/
                     if (stack.Count == 0)
                     {
@@ -68,7 +74,9 @@ class Validating : MonoBehaviour
                             sb[j] = '*';
                             j++;
                         }
-                        tempp += sb[j];
+                        int stopRoot = j + 1;
+                        insertIndices1.Add(insertRoot);
+                        insertIndices2.Add(stopRoot);
                         string root = tempp.Substring(2);
                         /* !Comment: If it is the closing tag of the root, and there is no opening tag for it, we add it 
                         to the file, then break*/
@@ -78,7 +86,7 @@ class Validating : MonoBehaviour
                             break;
                         }
                         /* !Comment: if it is a closing tag, but not the root, we remove it from the file*/
-                        faultyTags.Add("There is no corresponding tag for the following  " + tempp + ", we removed it");
+                        faultyTags.Add("There is no corresponding tag for the following  " + tempp );
                         sb[j] = '*';
                         continue;
                     }
@@ -100,7 +108,7 @@ class Validating : MonoBehaviour
 
                     int lastIndex = j; //ending of the potentially faulty tag '>'
                     /* !Comment: If the stack top is the same as the closing tag we received, Pop it!*/
-                    string top = (string)stack.Peek();
+                    string top = (string)stack.Peek().Split('$')[0];
                     if (top.Equals(temp))
                     {
                         stack.Pop();
@@ -120,7 +128,7 @@ class Validating : MonoBehaviour
                             /* !Comment: If we reached the root, and didn't find the tag, we remove it*/
                             if (stack.Count == 1)
                             {
-                                faultyTags.Add("The following closing tag: " + temp + "wasn't opened ! ");
+                                faultyTags.Add("The following closing tag: " + temp + " wasn't opened ! ");
                                 StringBuilder sb = new StringBuilder(xmlFile);
                                 startIndex -= 2;
                                 startindex = startIndex;
@@ -133,12 +141,12 @@ class Validating : MonoBehaviour
                                 break;
 
                             }
-                            string add = "</" + (string)stack.Peek() + ">";
+                            string add = "</" + (string)stack.Peek().Split('$')[0] + ">";
                             correctPart += add;
                             faultyTags.Add("Inidentical closing tags !, the expected tag is: " + top + ", found: " + temp);
                             countChar += add.Length;
                             stack.Pop();
-                            top = (string)stack.Peek();
+                            top = (string)stack.Peek().Split('$')[0];
                         }
                         if (stack.Count > 1)
                         {
@@ -151,7 +159,20 @@ class Validating : MonoBehaviour
         }
 
 
-            for(int i =0; i<insertIndices1.Count;i++)
+
+        while (stack.Count != 0)
+        {
+            faultyTags.Add("The Following tag wasn't closed: " + (string)stack.Peek().Split('$')[0]);
+            insertIndices1.Add(int.Parse(stack.Peek().Split('$')[1]));
+            insertIndices2.Add(int.Parse(stack.Peek().Split('$')[2]));
+            stack.Pop();
+        }
+
+        insertIndices1.Sort();
+        insertIndices2.Sort();
+
+
+        for (int i =0; i<insertIndices1.Count;i++)
             {
             xmlFile=xmlFile.Insert(insertIndices2[insertIndices2.Count - 1 - i], "</color=#ff0000ff>");
             xmlFile=xmlFile.Insert(insertIndices1[insertIndices1.Count - 1 - i], "<color=#ff0000ff>");
@@ -161,11 +182,6 @@ class Validating : MonoBehaviour
 
 
 
-        while (stack.Count != 0)
-        {
-            faultyTags.Add("The Following tag wasn't closed: " + (string)stack.Peek());
-            stack.Pop();
-        }
 
         StreamWriter writer = new StreamWriter(@"validationLOG.txt");
         writer.AutoFlush = true; // to flush the buffer (common error to not print all the text if set to false)

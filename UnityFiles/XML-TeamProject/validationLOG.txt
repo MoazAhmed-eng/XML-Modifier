@@ -1,1 +1,1 @@
-Inidentical closing tags !, the expected tag is: topics, found: post
+Inidentical closing tags !, the expected tag is: topic, found: topics
