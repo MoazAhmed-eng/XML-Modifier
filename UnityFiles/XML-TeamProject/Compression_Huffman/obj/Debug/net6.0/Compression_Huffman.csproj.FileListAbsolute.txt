@@ -1,0 +1,15 @@
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\Compression_Huffman.exe
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\Compression_Huffman.deps.json
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\Compression_Huffman.runtimeconfig.json
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\Compression_Huffman.dll
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\ref\Compression_Huffman.dll
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\bin\Debug\net6.0\Compression_Huffman.pdb
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.csproj.AssemblyReference.cache
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.GeneratedMSBuildEditorConfig.editorconfig
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.AssemblyInfoInputs.cache
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.AssemblyInfo.cs
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.csproj.CoreCompileInputs.cache
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.dll
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\ref\Compression_Huffman.dll
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.pdb
+E:\User\Media\Desktop\Shortcuts\Compression_Huffman\obj\Debug\net6.0\Compression_Huffman.genruntimeconfig.cache
