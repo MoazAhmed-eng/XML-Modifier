@@ -284,6 +284,10 @@ public class Compressing : MonoBehaviour
             Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
             Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gZipBuffer, 0, 4);
             GameObject.FindGameObjectWithTag("mainText").GetComponent<UnityEngine.UI.InputField>().text =Convert.ToBase64String(gZipBuffer);
+        StreamWriter writer = new StreamWriter("compressed.txt");
+        writer.AutoFlush = true;
+        writer.Write(Convert.ToBase64String(gZipBuffer));
+        writer.Close();
         
     }
 
