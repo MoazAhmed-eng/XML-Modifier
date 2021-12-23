@@ -487,10 +487,24 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Team Members\n\nAMR WAEL MOHAMED HELALY  1808447\n\noMAR HUSSIEN MAHMOUD
-    ALI 1804749\n\nMINA LUCA \t\t\t\t 1808447\n\nAMR WAEL MOHAMED HELALY  1808447\n\nAMR
-    WAEL MOHAMED HELALY  1808447\n\nMOAAZ Ahmed mohamed      1808447\n\nAMR WAEL
-    MOHAMED HELALY  1808447"
+  m_Text: 'Team Members
+
+
+    AMR WAEL MOHAMED HELALY  1808447
+
+
+    oMAR HUSSIEN
+    MAHMOUD ALI 1804749
+
+
+    Mina Medhat Mounir Luka  1801782
+
+
+    MOAAZ Ahmed
+    mohamed      1809869
+
+
+'
 --- !u!222 &941840930
 CanvasRenderer:
   m_ObjectHideFlags: 0

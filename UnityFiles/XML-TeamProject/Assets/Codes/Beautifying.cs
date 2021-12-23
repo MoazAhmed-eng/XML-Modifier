@@ -69,7 +69,7 @@ public class Beautifying : MonoBehaviour
     void Update()
     {
 
-        if (PlayerPrefs.GetInt("isValid") == 1 && PlayerPrefs.GetInt("checked") == 1 && PlayerPrefs.GetInt("json") != 1 && PlayerPrefs.GetInt("correct") != 1)
+        if (PlayerPrefs.GetInt("isValid") == 1 && PlayerPrefs.GetInt("checked") == 1 && PlayerPrefs.GetInt("json") != 1 && PlayerPrefs.GetInt("Corrected") != 1)
 
         {
             gameObject.GetComponent<UnityEngine.UI.Button>().interactable = true;
