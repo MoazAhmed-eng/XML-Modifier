@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 using System.IO;
+using System;
 
 
 
@@ -186,6 +187,47 @@ public class Jsonify : MonoBehaviour
             } // Append the values (data)
 
         }
+
+        StreamWriter writer = new StreamWriter(@"nodes.txt");
+        writer.AutoFlush = true;
+        string[] names = new string[200];
+        List<string> graph = new List<string>();
+
+        for (int i=0; i < tockenized.Count;  i++)
+        {
+            int id=0;
+            if (tockenized[i].Equals("_user"))
+            {
+                i = i + 2;
+                id = Int16.Parse(tockenized[i]);
+                PlayerPrefs.SetInt("id", id);
+            }
+
+            if (tockenized[i].Equals("_name"))
+            {
+                i++;
+                string[] splitted = tockenized[i].Split(' ');
+                PlayerPrefs.SetString("name",splitted[0]+splitted[1]);
+                names[PlayerPrefs.GetInt("id")] = splitted[0] + splitted[1];
+            }
+
+            if(tockenized[i].Equals("_follower"))
+            {
+                i = i + 2;
+                graph.Add(PlayerPrefs.GetString("name") + " " + tockenized[i]);
+            }
+        }
+
+        for(int i =0; i<graph.Count; i++)
+        {
+            graph[i]=graph[i].Replace(graph[i].Split(' ')[1], names[Int16.Parse(graph[i].Split(' ')[1])]);
+        }
+
+        foreach (string edge in graph)
+        {
+            writer.WriteLine(edge);
+        }
+        writer.Close();
         return tockenized;
     }
 
